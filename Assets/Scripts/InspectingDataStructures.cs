@@ -6,9 +6,6 @@ using UnityEngine;
 /// </summary>
 public class InspectingDataStructures : MonoBehaviour
 {
-    private int _inspectThisInt = 0;
-    private bool _inspectThisBool = false;
-    private string _inspectThisString = "Hello World";
     private List<int> _inspectThisList;
     private InspectMe _inspectThisStruct;
 
