@@ -142,7 +142,7 @@ public class MidPointDisplacementTest : MonoBehaviour
                     break;
                 }
                 //MidPoints
-                //Get average Height
+                //Get average Height and add some randomness 
                 _avHeightNorth = (_currentCornerArray[0, 1].Height + _currentCornerArray[1, 1].Height) / 2;
                 _avHeightNorth = Random.Range(_avHeightNorth - (_maxHeight / _randomness), _avHeightNorth + (_maxHeight / _randomness));
                 _avHeightEast = (_currentCornerArray[1, 0].Height + _currentCornerArray[1, 1].Height) / 2;
@@ -224,7 +224,7 @@ public class MidPointDisplacementTest : MonoBehaviour
                         _currentDirection = Direction.se;
                     break;
 
-                    case Direction.se:
+                    case Direction.se: // this was used to go down a layer but it could only do the bottom left corners
                         // _currentDirection = Direction.sw;
                         // _cornerArraySw = new MP_GridPoint[,]
                         // {//working
