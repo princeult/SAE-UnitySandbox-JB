@@ -150,9 +150,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MidPointDisplacementTest
   gridPoint: {fileID: 3866418799602585854, guid: 24031018c3d871948bb112c4cdcdff4d, type: 3}
   _gridSize: 1.1
-  _maxHeight: 2
-  _GridSquareRoot: 15
-  _randomness: 10
+  _maxHeight: 20
+  _GridSquareRoot: 60
+  _randomness: 500
 --- !u!4 &1057327456
 Transform:
   m_ObjectHideFlags: 0

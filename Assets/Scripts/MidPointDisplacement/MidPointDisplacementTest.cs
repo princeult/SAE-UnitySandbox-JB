@@ -1,58 +1,41 @@
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 public class MidPointDisplacementTest : MonoBehaviour
 {
     [SerializeField] private GameObject gridPoint;
-    [SerializeField] private float _gridSize = 1;
-    [SerializeField] private float _maxHeight = 2;
+    [SerializeField] private float _gridSize = 1f;
+    [SerializeField, Range(3, 35)] private float _maxHeight = 2f;
+    [Header("Grid Square Root 150 tested \nLoads in ~10 seconds with high end pc \nTakes 2 minutes to end play")]
     [SerializeField] private int _GridSquareRoot = 11;
-    [SerializeField, Range(100, 0)] private float _randomness = 10;
+
+    [Header("Higher is less random")]
+    [SerializeField, Range(500f, 0.01f)] private float _randomness = 10f;
+    
+    private readonly float _spawnDelayTime = 0.1f;
     private MP_GridPoint[,] _masterArray;
     private MP_GridPoint[,] _cornerArray;
 
-    private enum Direction {none, next, sw, nw, ne, se};
-
-    private MP_GridPoint[,] _cornerArraySw = new MP_GridPoint[2,2];
-    private MP_GridPoint[,] _cornerArrayNw = new MP_GridPoint[2,2];
-    private MP_GridPoint[,] _cornerArrayNe = new MP_GridPoint[2,2];
-    private MP_GridPoint[,] _cornerArraySe = new MP_GridPoint[2,2];
-
-    private int _reoccurringCount;
-
-
     
-    
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+
     void Start()
     {
-        if((_GridSquareRoot % 3) == 0)
-        {
-        _reoccurringCount = _GridSquareRoot / 3;
-        SpawnGrid();
-        SetHeight();
-        }
-        else
-        {
-            Debug.Log("Grid Square Root Must Be divisible by 3");
-        }
+        StartCoroutine(SpawnGrid());
     }
     
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-    private void SpawnGrid()
-    {
+
+    private IEnumerator SpawnGrid()
+    { //Spawn all the points based on the size of the grid
         int _count = 0;
         _masterArray = new MP_GridPoint[_GridSquareRoot, _GridSquareRoot];
-        Vector3 _spawnPos = gameObject.transform.position;
+
         for(int col = 0; col < _GridSquareRoot; col++)
         {
             for(int row = 0; row < _GridSquareRoot; row++)
             {
-                _spawnPos = new Vector3(row * _gridSize, 0, col * _gridSize); 
+                Vector3 _spawnPos = new(row * _gridSize, 0, col * _gridSize); 
                 MP_GridPoint _gridPoint = Instantiate(gridPoint, _spawnPos, Quaternion.identity).GetComponent<MP_GridPoint>();
                 _count++;
                 _masterArray[col, row] = _gridPoint;
@@ -60,9 +43,11 @@ public class MidPointDisplacementTest : MonoBehaviour
                 _gridPoint.DisplayNumber.text = col.ToString() + "_" + row.ToString();
             }
         }
+        StartCoroutine(SetHeight());
+        yield break;
     }
 
-    private void SetHeight()
+    private IEnumerator SetHeight()
     {
         //Get first set of corners
         _cornerArray = new MP_GridPoint[,]
@@ -77,22 +62,19 @@ public class MidPointDisplacementTest : MonoBehaviour
             for(int row = 0; row < _cornerArray.GetLength(1); row++)
             {   
                 _cornerArray[col, row].UpdateHeight(Random.Range(0, _maxHeight));
-
+                yield return new WaitForSeconds(_spawnDelayTime);
             }
         }
 
 
-    SetHeightChild(_cornerArray);
-
+    StartCoroutine(SetHeightChild(_cornerArray, 0));
+    yield break;
     }
 
-    private void SetHeightChild(MP_GridPoint[,] __cornerArray)
+    private IEnumerator SetHeightChild(MP_GridPoint[,] __cornerArray, int _reoccurred)
     {
-        Direction _currentDirection = Direction.none;
-        bool _layerCompleted = false;
 
-
-        float _avHeightNorth ;
+        float _avHeightNorth;
         float _avHeightEast;
         float _avHeightSouth;
         float _avHeightWest;
@@ -100,7 +82,7 @@ public class MidPointDisplacementTest : MonoBehaviour
         float _avHeightCen;
 
 
-        Vector2 _midPointNorthPos = new (1,1);
+        Vector2 _midPointNorthPos;
         Vector2 _midPointEastPos;
         Vector2 _midPointSouthPos;
         Vector2 _midPointWestPos;
@@ -115,32 +97,7 @@ public class MidPointDisplacementTest : MonoBehaviour
         
         MP_GridPoint _midPointCenter;
         MP_GridPoint[,] _currentCornerArray = __cornerArray;
-        MP_GridPoint[,] _previousCornerArray = _currentCornerArray;
 
-        for(int i = 0; i < 10; i++)
-        {
-            int j = 0;
-            while(j < _reoccurringCount)
-            {
-                
-                switch (_currentDirection)
-                {
-                    case Direction.sw:
-                    _currentCornerArray = _cornerArraySw;
-                    break;
-
-                    case Direction.nw:
-                    _currentCornerArray = _cornerArrayNw;
-                    break;
-
-                    case Direction.ne:
-                    _currentCornerArray = _cornerArrayNe;
-                    break;
-
-                    case Direction.se:
-                    _currentCornerArray = _cornerArraySe;
-                    break;
-                }
                 //MidPoints
                 //Get average Height and add some randomness 
                 _avHeightNorth = (_currentCornerArray[0, 1].Height + _currentCornerArray[1, 1].Height) / 2;
@@ -163,101 +120,64 @@ public class MidPointDisplacementTest : MonoBehaviour
                 _midPointWest = _masterArray[Mathf.RoundToInt(_midPointWestPos.x), Mathf.RoundToInt(_midPointWestPos.y)];
                 //SetHeight
                 _midPointNorth.UpdateHeight(_avHeightNorth);
+                yield return new WaitForSeconds(_spawnDelayTime);
                 _midPointEast.UpdateHeight(_avHeightEast);
+                yield return new WaitForSeconds(_spawnDelayTime);
                 _midPointSouth.UpdateHeight(_avHeightSouth);
+                yield return new WaitForSeconds(_spawnDelayTime);
                 _midPointWest.UpdateHeight(_avHeightWest);
-                _midPointNorth.DisplayNumber.text = "East";
-                _midPointEast.DisplayNumber.text = "North";
-                _midPointSouth.DisplayNumber.text = "West";
-                _midPointWest.DisplayNumber.text = "South";
+                yield return new WaitForSeconds(_spawnDelayTime);
+
                 //CentrePoint  
                 //Get average Height
                 _avHeightCen = (_midPointNorth.Height + _midPointEast.Height + _midPointSouth.Height + _midPointWest.Height) / 4;
-                //Get CentrePoint
+                //Get CentrePoint0
                 _midPointPos = (_midPointNorth.CurrentPos + _midPointEast.CurrentPos + _midPointSouth.CurrentPos + _midPointWest.CurrentPos) / 4;
                 //Set CentrePoint 
                 _midPointCenter = _masterArray[Mathf.RoundToInt(_midPointPos.x), Mathf.RoundToInt(_midPointPos.y)];
+
+                if(_midPointCenter.Height != 0)
+                {//Stop Recuring if center point already done, the grid is so small the corner is also the centre
+                    yield break;
+                }
+
                 //SetHeight
                 _midPointCenter.UpdateHeight(_avHeightCen);
+                yield return new WaitForSeconds(_spawnDelayTime);
 
-                switch (_currentDirection)
+                //Recursion for new corners from sides and center 
+               MP_GridPoint[,]  _childCornerArray = new MP_GridPoint[,]
                 {
-                    case Direction.none:
+                    {_currentCornerArray[0, 0], _midPointSouth,},
+                    {_midPointWest, _midPointCenter} 
+                };
+                StartCoroutine(SetHeightChild(_childCornerArray, _reoccurred + 1));
 
-                        _cornerArraySw = new MP_GridPoint[,]
-                        {//working
-                            {_currentCornerArray[0, 0], _midPointSouth,},
-                            {_midPointWest, _midPointCenter} 
-                        };
 
-                        _cornerArrayNw = new MP_GridPoint[,]
-                        {
-                            {_midPointSouth, _midPointCenter},
-                            {_currentCornerArray[0, 1], _midPointNorth}
-                        };
+                _childCornerArray = new MP_GridPoint[,]
+                {
+                    {_midPointSouth, _midPointCenter},
+                    {_currentCornerArray[0, 1], _midPointNorth}
+                };
+                StartCoroutine(SetHeightChild(_childCornerArray, _reoccurred + 1));
 
-                        _cornerArrayNe = new MP_GridPoint[,]
-                        { //working
-                            {_midPointCenter, _midPointEast},
-                            {_midPointNorth, _currentCornerArray[1, 1]}
-                        };
 
-                        _cornerArraySe = new MP_GridPoint[,]
-                        {
-                            {_midPointWest, _currentCornerArray[1, 0]},
-                            {_midPointCenter, _midPointEast}
-                        };
-                        _currentDirection = Direction.sw;
+                _childCornerArray = new MP_GridPoint[,]
+                {
+                    {_midPointCenter, _midPointEast},
+                    {_midPointNorth, _currentCornerArray[1, 1]}
+                };
+                StartCoroutine(SetHeightChild(_childCornerArray, _reoccurred + 1));
 
-                    break;
 
-                    case Direction.sw:
-                        _currentDirection = Direction.nw;
-
-                    break;
-
-                    case Direction.nw:
-                        _currentDirection = Direction.ne;
-                    break;
-
-                    case Direction.ne:
-                        _currentDirection = Direction.se;
-                    break;
-
-                    case Direction.se: // this was used to go down a layer but it could only do the bottom left corners
-                        // _currentDirection = Direction.sw;
-                        // _cornerArraySw = new MP_GridPoint[,]
-                        // {//working
-                        //     {_currentCornerArray[0, 0], _midPointSouth,},
-                        //     {_midPointWest, _midPointCenter} 
-                        // };
-
-                        //  _cornerArrayNw = new MP_GridPoint[,]
-                        // {
-                        //     {_midPointSouth, _midPointCenter},
-                        //     {_currentCornerArray[0, 1], _midPointNorth}
-                        // };
-
-                        // _cornerArrayNe = new MP_GridPoint[,]
-                        // { //working
-                        //     {_midPointCenter, _midPointEast},
-                        //     {_midPointNorth, _currentCornerArray[1, 1]}
-                        // };
-
-                        // _cornerArraySe = new MP_GridPoint[,]
-                        // {
-                        //     {_midPointWest, _currentCornerArray[1, 0]},
-                        //     {_midPointCenter, _midPointEast}
-                        // };
-                        Debug.Log(j);
-                        j++;
-                    break;
-
-                }
-            }
-            
-        
-        }
+                _childCornerArray = new MP_GridPoint[,]
+                {
+                    {_midPointWest, _currentCornerArray[1, 0]},
+                    {_midPointCenter, _midPointEast}
+                };
+                StartCoroutine(SetHeightChild(_childCornerArray, _reoccurred + 1));
+                yield break;
+               
     }
 
 }

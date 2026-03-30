@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1016803973315849038}
   - component: {fileID: 6279729078894626823}
   - component: {fileID: 291368395304326615}
-  - component: {fileID: -3457463087383920184}
+  - component: {fileID: 2922649769422774921}
   m_Layer: 0
   m_Name: GridPoint
   m_TagString: Untagged
@@ -114,7 +114,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &-3457463087383920184
+--- !u!114 &2922649769422774921
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -126,7 +126,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09ab8828139ad50409a064a1a079e2d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MP_GridPoint
-  CurrentPos: {x: 0, y: 0}
   DisplayNumber: {fileID: 6016859239211200260}
 --- !u!1 &5090967477067445869
 GameObject:
