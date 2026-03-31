@@ -15,11 +15,14 @@ public class QuadtreeExample : MonoBehaviour
         Tree = new Quadtree();
         for(int i = 0; i < objectCount; i++)
         {
-        Debug.Log(Tree.Insert(Instantiate(Object, new Vector3(Random.Range(1f,9f), Random.Range(1f,9f), 0),  Quaternion.identity), Tree.root) + " " + i);
+            Tree.Insert(Instantiate(Object, new Vector3(Random.Range(1f,9f), Random.Range(1f,9f), 0),  Quaternion.identity), Tree.root);
         }
 
         Debug.Log("was");
-        //Tree.Retrive(Tree.root); FIX THIS
+        foreach(GameObject _gm in Tree.Retrive(Tree.root))
+        {
+            Debug.Log(_gm);
+        }
     }   
 
     // Update is called once per frame
@@ -37,7 +40,7 @@ public class QuadTreeNode
     public int currentDepth;
 
     public QuadTreeNode[] Split(QuadTreeNode _node)
-    {
+    {//spits node into 4 smaller node
         QuadTreeNode _one= new();
         QuadTreeNode _two= new();
         QuadTreeNode _three= new();
@@ -49,7 +52,7 @@ public class QuadTreeNode
         {
             _newNodes[i].currentDepth = _node.currentDepth + 1;
             switch (i)
-            {
+            {//Offsets for new node positions
                 case 0:
                     _newNodes[i].bounds = new Rect(bounds.position,bounds.size/2f);;
                     break;
@@ -77,7 +80,7 @@ public class Quadtree
     public int maxDepth = 3;
 
     public bool Insert(GameObject _objectToInsert, QuadTreeNode _location)
-    {
+    {//Adds object to selected node or children if full, also splits node if needed.
 
         if (!_location.bounds.Contains(_objectToInsert.transform.position))
         {
@@ -131,29 +134,12 @@ public class Quadtree
     }
 
     public List<GameObject> Retrive(QuadTreeNode _node)
-    {
-        List<GameObject> _temp = new List<GameObject>();
+    {//Retrives all objects in current node and its children.
+        List<GameObject> _temp;
+        _temp = new List<GameObject>(); 
         
 
-        if (root.children.Length > 0)
-            {
-                foreach(QuadTreeNode _child in root.children)
-                {
-                    foreach(GameObject __child in Retrive(_child))
-                    {
-                        _temp.Add(__child);
-                    }
-                }
-            }
-            else if (root.children.Length == 0)
-            {
-                foreach(GameObject _object in root.objects)
-                {
-                    _temp.Add(_object);
-                }
-            }
-
-            if (_node.children.Length > 0)
+        if (_node.children.Length > 0)
             {
                 foreach(QuadTreeNode _child in _node.children)
                 {
