@@ -18,7 +18,6 @@ public class QuadtreeExample : MonoBehaviour
             Tree.Insert(Instantiate(Object, new Vector3(Random.Range(1f,9f), Random.Range(1f,9f), 0),  Quaternion.identity), Tree.root);
         }
 
-        Debug.Log("was");
         foreach(GameObject _gm in Tree.Retrive(Tree.root))
         {
             Debug.Log(_gm);
