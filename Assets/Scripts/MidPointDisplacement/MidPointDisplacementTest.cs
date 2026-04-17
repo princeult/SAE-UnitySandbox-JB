@@ -1,21 +1,24 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class MidPointDisplacementTest : MonoBehaviour
 {
     [SerializeField] private GameObject gridPoint;
     [SerializeField] private float _gridSize = 1f;
-    [SerializeField, Range(3, 35)] private float _maxHeight = 2f;
-    [Header("Grid Square Root 150 tested \nLoads in ~10 seconds with high end pc \nTakes 2 minutes to end play")]
+    [SerializeField, Range(3, 100)] private float _maxHeight = 2f;
+    [Header("Grid Square Root 250 tested \nLoads in ~30 seconds with high end pc")]
     [SerializeField] private int _GridSquareRoot = 11;
 
     [Header("Higher is less random")]
-    [SerializeField, Range(500f, 0.01f)] private float _randomness = 10f;
+    [SerializeField, Range(500f, 50)] private float _randomness = 10f;
+    [SerializeField] private bool _extraVariation = false;
     
     private readonly float _spawnDelayTime = 0.1f;
     private MP_GridPoint[,] _masterArray;
     private MP_GridPoint[,] _cornerArray;
+
 
     
 
@@ -40,7 +43,6 @@ public class MidPointDisplacementTest : MonoBehaviour
                 _count++;
                 _masterArray[col, row] = _gridPoint;
                 _gridPoint.CurrentPos = new Vector2(col, row);
-                _gridPoint.DisplayNumber.text = col.ToString() + "_" + row.ToString();
             }
         }
         StartCoroutine(SetHeight());
@@ -99,15 +101,26 @@ public class MidPointDisplacementTest : MonoBehaviour
         MP_GridPoint[,] _currentCornerArray = __cornerArray;
 
                 //MidPoints
-                //Get average Height and add some randomness 
+                //Get average Height 
                 _avHeightNorth = (_currentCornerArray[0, 1].Height + _currentCornerArray[1, 1].Height) / 2;
-                _avHeightNorth = Random.Range(_avHeightNorth - (_maxHeight / _randomness), _avHeightNorth + (_maxHeight / _randomness));
                 _avHeightEast = (_currentCornerArray[1, 0].Height + _currentCornerArray[1, 1].Height) / 2;
-                _avHeightEast = Random.Range(_avHeightEast - (_maxHeight / _randomness), _avHeightEast + (_maxHeight / _randomness));
                 _avHeightSouth = (_currentCornerArray[0, 0].Height +_currentCornerArray[0, 1].Height) / 2;
-                _avHeightSouth = Random.Range(_avHeightSouth - (_maxHeight / _randomness), _avHeightSouth + (_maxHeight / _randomness));
                 _avHeightWest = (_currentCornerArray[0, 0].Height + _currentCornerArray[1, 0].Height) / 2;
-                _avHeightWest = Random.Range(_avHeightWest - (_maxHeight / _randomness), _avHeightWest + (_maxHeight / _randomness));
+                //Add some randomness
+                if(_reoccurred == 0 && _extraVariation)
+                {//More randomess on first time
+                    _avHeightNorth = Random.Range(_maxHeight / 3, _maxHeight - (_maxHeight / 3));
+                    _avHeightEast = Random.Range(_maxHeight / 3, _maxHeight - (_maxHeight / 3)); 
+                    _avHeightSouth = Random.Range(_maxHeight / 3, _maxHeight - (_maxHeight / 3));
+                    _avHeightWest = Random.Range(_maxHeight / 3, _maxHeight - (_maxHeight / 3));
+                }
+                else
+                {
+                    _avHeightNorth = Random.Range(_avHeightNorth - (_maxHeight / _randomness), _avHeightNorth + (_maxHeight / _randomness));
+                    _avHeightEast = Random.Range(_avHeightEast - (_maxHeight / _randomness), _avHeightEast + (_maxHeight / _randomness)); 
+                    _avHeightSouth = Random.Range(_avHeightSouth - (_maxHeight / _randomness), _avHeightSouth + (_maxHeight / _randomness));
+                    _avHeightWest = Random.Range(_avHeightWest - (_maxHeight / _randomness), _avHeightWest + (_maxHeight / _randomness));
+                }
                 //Get Midpoints
                 _midPointNorthPos = (_currentCornerArray[0, 1].CurrentPos + _currentCornerArray[1, 1].CurrentPos) / 2;
                 _midPointEastPos = (_currentCornerArray[1, 0].CurrentPos + _currentCornerArray[1, 1].CurrentPos) / 2;
@@ -128,9 +141,19 @@ public class MidPointDisplacementTest : MonoBehaviour
                 _midPointWest.UpdateHeight(_avHeightWest);
                 yield return new WaitForSeconds(_spawnDelayTime);
 
+
                 //CentrePoint  
                 //Get average Height
                 _avHeightCen = (_midPointNorth.Height + _midPointEast.Height + _midPointSouth.Height + _midPointWest.Height) / 4;
+                //Add Randomness
+                if(_reoccurred == 0 && _extraVariation)
+                {//More randomess on first time
+                    _avHeightCen = Random.Range(_maxHeight / 3, _maxHeight - (_maxHeight / 3));
+                }
+                else
+                {
+                    _avHeightCen = Random.Range(_avHeightCen - (_maxHeight / _randomness), _avHeightCen + (_maxHeight / _randomness));
+                }
                 //Get CentrePoint0
                 _midPointPos = (_midPointNorth.CurrentPos + _midPointEast.CurrentPos + _midPointSouth.CurrentPos + _midPointWest.CurrentPos) / 4;
                 //Set CentrePoint 

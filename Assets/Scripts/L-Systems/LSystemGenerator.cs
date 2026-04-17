@@ -12,7 +12,7 @@ public class LSystemGenerator : MonoBehaviour
     [SerializeField] private float _g = 10f;
     [SerializeField] private float _rotation = 10f;
     private enum LsystemDict {none, f, g, plus, minus, repeat, save};
-    [SerializeField] private LsystemDict[] dictionary;
+    [SerializeField] private LsystemDict[] axiom;
     [SerializeField] private GameObject _LsystemPoint;
     [SerializeField] private GameObject _connector;
 
@@ -22,7 +22,7 @@ public class LSystemGenerator : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        List<LsystemDict> _lsystemlist = LsystemArrayToList(dictionary);
+        List<LsystemDict> _lsystemlist = LsystemArrayToList(axiom);
         for(int i = 0; i < _interations; i++)
         {
             _lsystemlist = IterateProdutionRules(_lsystemlist);
@@ -65,16 +65,16 @@ public class LSystemGenerator : MonoBehaviour
 
                     break;
                 case LsystemDict.minus:
-                    _newLsystemlist.Add(LsystemDict.minus);
+                    //_newLsystemlist.Add(LsystemDict.minus);
                     break;
                 case LsystemDict.plus:
-                    _newLsystemlist.Add(LsystemDict.plus);
+                    //_newLsystemlist.Add(LsystemDict.plus);
                     break;
                 case LsystemDict.repeat:
-                    _newLsystemlist.Add(LsystemDict.repeat);
+                    //_newLsystemlist.Add(LsystemDict.repeat);
                     break;
                 case LsystemDict.save:
-                    _newLsystemlist.Add(LsystemDict.save);
+                    //_newLsystemlist.Add(LsystemDict.save);
                     break;
             }
         }
